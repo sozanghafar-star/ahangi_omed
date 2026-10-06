@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>بانگهێشتنامەی شنیار & ئومێد</title>
+  
+  <!-- فۆنتی کوردی و عەرەبی قەشەنگ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,700;1,700&family=Noto+Naskh+Arabic:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
+  
+  <!-- Canvas Confetti بۆ یاری ئاگرین -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --gold-primary: #d4af37;
+      --gold-gradient: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+      --gold-glow: 0 0 15px rgba(212, 175, 55, 0.6);
+      --font-arabic: 'Amiri', 'Noto Naskh Arabic', serif;
+      --font-body: 'Noto Naskh Arabic', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      font-family: var(--font-body);
+      background-color: #0b0b0b;
+      color: #222;
+      overflow-x: hidden;
+    }
+
+    /* دوگمەی کۆنترۆڵی مۆسیقا (هەمیشەیی) */
+    .music-toggle-btn {
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      z-index: 9999;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(13, 13, 13, 0.75);
+      border: 1.5px solid #d4af37;
+      color: #d4af37;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(6px);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .music-toggle-btn.playing {
+      animation: rotateMusic 4s linear infinite;
+    }
+
+    @keyframes rotateMusic {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* =========================================
+       1. پەڕەی یەکەم: کەڤەر و مۆری داگرتن
+       ========================================= */
+    #page-1 {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000 url('img1.jpg') no-repeat center center;
+      background-size: cover;
+      z-index: 50;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.8s ease-in-out, visibility 0.8s;
+    }
+
+    .seal-btn {
+      position: absolute;
+      top: 61.5%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      border: 2px solid #fff3a8;
+      background: radial-gradient(circle, #fcf6ba 10%, #d4af37 40%, #aa771c 85%, #634509 100%);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.6), var(--gold-glow);
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: var(--font-arabic);
+      font-weight: bold;
+      font-size: 15px;
+      color: #3b2704;
+      text-shadow: 0 1px 1px rgba(255,255,255,0.7);
+      animation: pulseSeal 2s infinite ease-in-out;
+      user-select: none;
+    }
+
+    @keyframes pulseSeal {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 12px rgba(212,175,55,0.5); }
+      50% { transform: translate(-50%, -50%) scale(1.06); box-shadow: 0 0 25px rgba(255,230,120,0.85); }
+    }
+
+    /* =========================================
+       2. پەڕەی دووەم: کاتی (4 چرکە)
+       ========================================= */
+    #page-2 {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000 url('img2.jpg') no-repeat center center;
+      background-size: cover;
+      z-index: 40;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+    }
+
+    .invitation-text-box {
+      position: absolute;
+      top: 36%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 78%;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .greeting-line {
+      font-size: 21px;
+      font-weight: 700;
+      line-height: 1.8;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+      font-family: var(--font-arabic);
+    }
+
+    /* =========================================
+       3. پەڕەی سێیەم: پەڕەی سەرەکی سکرۆڵ
+       ========================================= */
+    #page-3 {
+      display: none;
+      min-height: 100vh;
+      width: 100%;
+      background: url('img3.jpg') no-repeat center center fixed;
+      background-size: cover;
+      position: relative;
+      z-index: 10;
+      padding: 30px 18px 50px;
+      opacity: 0;
+      transition: opacity 1s ease-in;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .bismillah {
+      font-family: var(--font-arabic);
+      font-size: 20px;
+      color: #000000;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    .couple-box {
+      margin-top: 75px;
+      width: 90%;
+      background: #0d0d0d;
+      border: 1.5px solid #d4af37;
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+    }
+
+    .couple-names {
+      font-family: var(--font-arabic);
+      font-size: 30px;
+      font-weight: 700;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 1px;
+    }
+
+    .welcome-quote {
+      margin-top: 75px;
+      font-size: 15px;
+      line-height: 1.9;
+      color: #1a1a1a;
+      font-weight: 600;
+      padding: 0 10px;
+    }
+
+    .couple-img-wrapper {
+      margin-top: 30px;
+      width: 200px;
+      height: 200px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 3px solid #d4af37;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+      background-color: #222;
+    }
+
+    .couple-img-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .event-date-text {
+      margin-top: 25px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #000;
+    }
+
+    /* کالێندەری مانگی 10 (October 2026) */
+    .calendar-container {
+      margin-top: 15px;
+      width: 100%;
+      max-width: 320px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      padding: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    .calendar-header {
+      font-weight: bold;
+      font-size: 16px;
+      color: #222;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #d4af37;
+      padding-bottom: 6px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      font-size: 13px;
+      color: #333;
+    }
+
+    .calendar-grid span {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 32px;
+      font-weight: 500;
+    }
+
+    .day-name {
+      font-weight: bold !important;
+      color: #555;
+    }
+
+    .target-day {
+      position: relative;
+      color: #fff !important;
+      font-weight: bold !important;
+      z-index: 1;
+    }
+
+    .target-day::before {
+      content: '♥';
+      position: absolute;
+      font-size: 32px;
+      color: #e60023;
+      z-index: -1;
+      line-height: 1;
+      top: 0px;
+      animation: beatHeart 1.3s infinite;
+    }
+
+    @keyframes beatHeart {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.18); }
+    }
+
+    .countdown-section {
+      margin-top: 25px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .timer-unit {
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid #d4af37;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      min-width: 65px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .timer-unit .val {
+      font-size: 20px;
+      font-weight: bold;
+      color: #d4af37;
+      display: block;
+    }
+
+    .timer-unit .lbl {
+      font-size: 11px;
+      color: #eee;
+    }
+
+    .section-title {
+      margin-top: 35px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #000;
+    }
+
+    .glass-gold-box {
+      margin-top: 15px;
+      width: 100%;
+      background: rgba(255, 248, 220, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1.5px solid rgba(212, 175, 55, 0.65);
+      border-radius: 15px;
+      padding: 18px 20px;
+      box-shadow: 0 8px 25px rgba(212, 175, 55, 0.15);
+      color: #000;
+      text-align: right;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 2;
+    }
+
+    .location-title {
+      margin-top: 75px;
+      font-size: 17px;
+      font-weight: bold;
+      color: #000;
+    }
+
+    .map-box {
+      margin-top: 15px;
+      width: 100%;
+      height: 200px;
+      border-radius: 15px;
+      overflow: hidden;
+      border: 2px solid #d4af37;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .map-box iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .action-btn {
+      margin-top: 15px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: #111;
+      color: #d4af37;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 15px;
+      border-radius: 30px;
+      border: 1px solid #d4af37;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .action-btn:active {
+      transform: scale(0.96);
+      background: #222;
+    }
+
+    .family-thanks {
+      margin-top: 45px;
+      font-size: 17px;
+      font-weight: bold;
+      color: #111;
+      font-family: var(--font-arabic);
+    }
+
+    .contact-btn {
+      background: linear-gradient(135deg, #000000, #0f110f);
+      color: #c9c118;
+      border: 1px solid #010201;
+      margin-top: 15px;
+      margin-bottom: 25px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- دەنگ/مۆسیقا -->
+  <audio id="bg-music" src="music.mp3" preload="auto" loop></audio>
+
+  <!-- دوگمەی ڕاگرتن/لێدانی مۆسیقای هەمیشەیی -->
+  <button id="music-btn" class="music-toggle-btn" onclick="toggleMusic()" aria-label="دەنگ">
+    🎵
+  </button>
+
+  <!-- ==================== پەڕەی 1 ==================== -->
+  <div id="page-1">
+    <button class="seal-btn" id="open-btn" onclick="startExperience()">بیکەرەوە</button>
+  </div>
+
+  <!-- ==================== پەڕەی 2 ==================== -->
+  <div id="page-2">
+    <div class="invitation-text-box">
+      <p class="greeting-line" id="invitation-msg">
+        <span id="guest-name">سڵاو</span><br>
+        بەڕێزتان بانگهێشت کراون بۆ ئاهەنگی مارەبڕینی<br>
+        <strong>شنیار & ئومێد</strong>
+      </p>
+    </div>
+  </div>
+
+  <!-- ==================== پەڕەی 3 ==================== -->
+  <div id="page-3">
+    <div class="container">
+      
+      <p class="bismillah">بِسْمِ اللَّـهِ الرَّحْمَـٰنِ الرَّحِيمِ</p>
+      
+      <div class="couple-box">
+        <h1 class="couple-names">شنیار & ئومێد</h1>
+      </div>
+
+      <p class="welcome-quote">
+        ئەم ڕۆژە بۆ ئێمە دەستپێکی ژیانێکی نوێیە و دەمانەوێت بیکەین بە ڕۆژێکی لەبیر نەکراو ، بە ئامادە بونی تۆی بەڕێز ئاهەنگەکەمان ڕازاوەتر و مانادارتر دەبێت
+      </p>
+
+      <div class="couple-img-wrapper">
+        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80" alt="وێنەی بوک و زاوا">
+      </div>
+
+      <p class="event-date-text">بەرواری ئاهەنگەکە : 9 / 10 / 2026 (ڕۆژی هەینی)</p>
+
+      <!-- کالێندەری ڕێکخراو: 1ی مانگ لە پێنجشەممەیە و 9ی مانگ لە هەینیە -->
+      <div class="calendar-container">
+        <div class="calendar-header">October / تشرینی یەکەم 2026</div>
+        <div class="calendar-grid">
+          <span class="day-name">ش</span>
+          <span class="day-name">ی</span>
+          <span class="day-name">د</span>
+          <span class="day-name">س</span>
+          <span class="day-name">چ</span>
+          <span class="day-name">پ</span>
+          <span class="day-name">هـ</span>
+          
+          <!-- بۆشایی دەستپێکی هەفتە (5 بۆشایی تا دەگاتە پێنجشەممە) -->
+          <span></span><span></span><span></span><span></span><span></span>
+          <span>1</span><span>2</span>
+
+          <span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span>
+          <span class="target-day">9</span> <!-- ڕۆژی 9 ڕێک دەکەوێتە ڕۆژی هەینی -->
+
+          <span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span>
+          <span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span>
+          <span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span>
+          <span>31</span>
+        </div>
+      </div>
+
+      <!-- کاتژمێری پێچەوانە (Countdown) -->
+      <div class="countdown-section">
+        <div class="timer-unit"><span class="val" id="days">0</span><span class="lbl">ڕۆژ</span></div>
+        <div class="timer-unit"><span class="val" id="hours">0</span><span class="lbl">کاتژمێر</span></div>
+        <div class="timer-unit"><span class="val" id="minutes">0</span><span class="lbl">خولەک</span></div>
+        <div class="timer-unit"><span class="val" id="seconds">0</span><span class="lbl">چرکە</span></div>
+      </div>
+
+      <!-- پلانی ئاهەنگ -->
+      <h3 class="section-title">پلانی ئاهەنگەکە</h3>
+      <div class="glass-gold-box">
+        <div>۱ . کاتژمێر 2:00 ی پاش نیوەڕۆ دەسپێکی ئاهەنگەکە</div>
+        <div>۲ . کاتژمێر 6:00 ی ئێوارە کۆتایی ئاهەنگەکە</div>
+      </div>
+
+      <!-- ناونیشان -->
+      <p class="location-title">ناونیشان : سلێمانی - سەیرانگای ماریانای خێزانی</p>
+
+      <div class="map-box">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d103328.79058728956!2d45.3500!3d35.5600!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4000293fa0223df1%3A0x6b63d91c13bc3fc8!2sSulaymaniyah!5e0!3m2!1sen!2siq!4v1600000000000!5m2!1sen!2siq" loading="lazy"></iframe>
+      </div>
+
+      <a href="https://maps.google.com/?q=سەیرانگای+ماریانای+خێزانی+سلێمانی" target="_blank" class="action-btn">
+        📍 کرانەوە لە Google Maps
+      </a>
+
+      <p class="family-thanks">لەگەڵ ڕێز و خۆشەویستی ماڵی زاوا</p>
+
+      <a href="tel:07700000000" class="action-btn contact-btn">
+        📞 پەیوەندی کردن بە خاوەن بۆنە
+      </a>
+
+    </div>
+  </div>
+
+  <!-- ==================== سکرێپتی سیستەم ==================== -->
+  <script>
+    const music = document.getElementById('bg-music');
+    const musicBtn = document.getElementById('music-btn');
+
+    // لێدان یان ڕاگرتنی مۆسیقا بە دەست لە هەر کاتێکدا
+    function toggleMusic() {
+      if (music.paused) {
+        music.play().then(() => {
+          musicBtn.classList.add('playing');
+          musicBtn.innerHTML = '🎵';
+        }).catch(err => console.log(err));
+      } else {
+        music.pause();
+        musicBtn.classList.remove('playing');
+        musicBtn.innerHTML = '🔇';
+      }
+    }
+
+    // دیاریکردنی ناوی میوان لە بەستەرەوە
+    const urlParams = new URLSearchParams(window.location.search);
+    const guestParam = urlParams.get('guest');
+    if (guestParam) {
+      document.getElementById('guest-name').innerText = guestParam + 'ی بەڕێز';
+    }
+
+    // دەستپێکردنی گەشتەکە و لێدانی ڕاستەوخۆی مۆسیقا
+    function startExperience() {
+      // لێدانی مۆسیقا ڕاستەوخۆ لەسەر کرتەکردن
+      if (music) {
+        music.play().then(() => {
+          musicBtn.classList.add('playing');
+        }).catch(e => {
+          console.log("لێدانی دەنگ ڕاگیرا لەلایەن وێبگەڕ: ", e);
+        });
+      }
+
+      // شاردنەوەی پەڕەی 1
+      const page1 = document.getElementById('page-1');
+      page1.style.opacity = '0';
+      setTimeout(() => {
+        page1.style.display = 'none';
+
+        // پیشاندانی پەڕەی 2 (کاتی) لەگەڵ مۆسیقا
+        const page2 = document.getElementById('page-2');
+        page2.style.display = 'block';
+        setTimeout(() => page2.style.opacity = '1', 50);
+
+        // مانەوە بۆ 4 چرکە پاشان پەڕەی سێیەم
+        setTimeout(() => {
+          page2.style.opacity = '0';
+          setTimeout(() => {
+            page2.style.display = 'none';
+
+            const page3 = document.getElementById('page-3');
+            page3.style.display = 'block';
+            setTimeout(() => page3.style.opacity = '1', 50);
+
+            launchFireworks(3);
+          }, 800);
+        }, 4000);
+
+      }, 800);
+    }
+
+    // یاری ئاگرین
+    function launchFireworks(seconds) {
+      const duration = seconds * 1000;
+      const end = Date.now() + duration;
+
+      const interval = setInterval(function() {
+        if (Date.now() > end) {
+          return clearInterval(interval);
+        }
+        confetti({
+          startVelocity: 30,
+          spread: 360,
+          ticks: 60,
+          origin: { x: Math.random(), y: Math.random() - 0.2 },
+          colors: ['#d4af37', '#ffffff', '#e60023', '#ffd700']
+        });
+      }, 250);
+    }
+
+    // ژماردنی پێچەوانە
+    const targetDate = new Date("October 9, 2026 14:00:00").getTime();
+
+    setInterval(function() {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance > 0) {
+        document.getElementById("days").innerText = Math.floor(distance / (1000 * 60 * 60 * 24));
+        document.getElementById("hours").innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        document.getElementById("minutes").innerText = Math.floor((distance % (1000 * 60)) / (1000 * 60));
+        document.getElementById("seconds").innerText = Math.floor((distance % (1000 * 60)) / 1000);
+      } else {
+        document.getElementById("days").innerText = '0';
+        document.getElementById("hours").innerText = '0';
+        document.getElementById("minutes").innerText = '0';
+        document.getElementById("seconds").innerText = '0';
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

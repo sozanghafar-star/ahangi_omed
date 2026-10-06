@@ -1,1 +1,0 @@
-# ahangi_omed
